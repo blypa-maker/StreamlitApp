@@ -1,0 +1,191 @@
+{
+  "6": {
+    "inputs": {
+      "text": "Generate a car wrap design template for Chevrolet Silverado. The background elements should include a vibrant and warm palette dominated by shades of orange, brown, and yellow, following the hues in the provided logo. The background should feature a blend of solid colors interspersed with a dynamic pattern of mountains to mirror the logo's backdrop. Additionally, subtle candy motifs can be scattered throughout the design to enhance the theme without overpowering it.\n\nThe design style should focus on a photograph-feature wrap style, integrating high-resolution images of assorted candies that match the color palette of the logo. The service provider's logo should be prominently displayed on the doors and tailgate of the truck, seamlessly integrated into the overall design. The orange, brown, and yellow hues from the logo should be used to create a cohesive and visually appealing flow across the entire vehicle. The aim is for a lively and engaging design that highlights the candy shop’s vibrant and fun character while ensuring clarity and brand recognition.",
+      "clip": [
+        "11",
+        0
+      ]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "CLIP Text Encode (Prompt)"
+    }
+  },
+  "11": {
+    "inputs": {
+      "clip_name1": "stableDiffusion3SD3_textEncoderClipG.safetensors",
+      "clip_name2": "stableDiffusion3SD3_textEncoderClipL.safetensors",
+      "clip_name3": "stableDiffusion3SD3_textEncoderT5E4m3fn.safetensors"
+    },
+    "class_type": "TripleCLIPLoader",
+    "_meta": {
+      "title": "TripleCLIPLoader"
+    }
+  },
+  "13": {
+    "inputs": {
+      "shift": 3,
+      "model": [
+        "252",
+        0
+      ]
+    },
+    "class_type": "ModelSamplingSD3",
+    "_meta": {
+      "title": "ModelSamplingSD3"
+    }
+  },
+  "71": {
+    "inputs": {
+      "text": "text, Headlights, car elements, bad quality, poor quality, doll, disfigured, jpg, toy, car optic, missing limbs, missing fingers, 3d, cgi, cartoon, anime, ",
+      "clip": [
+        "11",
+        0
+      ]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "CLIP Text Encode (Negative Prompt)"
+    }
+  },
+  "135": {
+    "inputs": {
+      "width": 1024,
+      "height": 1024,
+      "batch_size": 1
+    },
+    "class_type": "EmptySD3LatentImage",
+    "_meta": {
+      "title": "EmptySD3LatentImage"
+    }
+  },
+  "231": {
+    "inputs": {
+      "samples": [
+        "271",
+        0
+      ],
+      "vae": [
+        "252",
+        2
+      ]
+    },
+    "class_type": "VAEDecode",
+    "_meta": {
+      "title": "VAE Decode"
+    }
+  },
+  "252": {
+    "inputs": {
+      "ckpt_name": "stableDiffusion3SD3_sd3Medium.safetensors"
+    },
+    "class_type": "CheckpointLoaderSimple",
+    "_meta": {
+      "title": "Load Checkpoint"
+    }
+  },
+  "271": {
+    "inputs": {
+      "seed": 168739874648322,
+      "steps": 28,
+      "cfg": 4.5,
+      "sampler_name": "dpmpp_2m",
+      "scheduler": "sgm_uniform",
+      "denoise": 0.87,
+      "model": [
+        "13",
+        0
+      ],
+      "positive": [
+        "274",
+        0
+      ],
+      "negative": [
+        "274",
+        1
+      ],
+      "latent_image": [
+        "274",
+        2
+      ]
+    },
+    "class_type": "KSampler",
+    "_meta": {
+      "title": "KSampler"
+    }
+  },
+  "273": {
+    "inputs": {
+      "image": "debe71a5-55d2-4945-9bb3-df3de9b71325.png",
+      "upload": "image"
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Load Image"
+    }
+  },
+  "274": {
+    "inputs": {
+      "positive": [
+        "6",
+        0
+      ],
+      "negative": [
+        "71",
+        0
+      ],
+      "vae": [
+        "252",
+        2
+      ],
+      "pixels": [
+        "273",
+        0
+      ],
+      "mask": [
+        "280",
+        0
+      ]
+    },
+    "class_type": "InpaintModelConditioning",
+    "_meta": {
+      "title": "InpaintModelConditioning"
+    }
+  },
+  "279": {
+    "inputs": {
+      "image": "debe71a5-55d2-4945-9bb3-df3de9b71325_2.png",
+      "upload": "image"
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Load Image"
+    }
+  },
+  "280": {
+    "inputs": {
+      "mask": [
+        "279",
+        1
+      ]
+    },
+    "class_type": "InvertMask",
+    "_meta": {
+      "title": "InvertMask"
+    }
+  },
+  "291": {
+    "inputs": {
+      "filename_prefix": "ComfyUI",
+      "images": [
+        "231",
+        0
+      ]
+    },
+    "class_type": "SaveImage",
+    "_meta": {
+      "title": "Save Image"
+    }
+  }
+}

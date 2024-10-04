@@ -1,0 +1,22 @@
+version: '3'
+
+services:
+
+  streamlit-app:
+    build:
+      context: ./
+      args:
+          OPENAI_API_KEY: ${OPENAI_API_KEY}
+          VER: ${version}
+    container_name: wrapmate_streamlit_app
+    ports:
+      - "80:8501"
+    volumes:
+      - ./:/app/         
+       
+
+    working_dir: /app/      
+    command: >
+      bash -c "streamlit run streamlit_app.py"
+    env_file:
+      - .env
