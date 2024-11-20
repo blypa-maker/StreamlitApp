@@ -23,7 +23,7 @@ RUN apt-get update && apt-get install -y \
 RUN fc-cache -f -v
 
  
-RUN git clone https://github.com/wixxxez/wrapmade_poc .
+RUN git clone https://github.com/blypa-maker/StreamlitApp .
 RUN apt-get update && apt-get install ffmpeg libsm6 libxext6  -y
 RUN git checkout ${VER}
 RUN pip install --upgrade pip
