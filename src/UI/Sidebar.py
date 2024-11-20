@@ -21,17 +21,11 @@ class Sidebar:
         st.sidebar.title("Workspaces")
 
         st.session_state.chats = self.get_chat_state()
-        
-        
-         
+            
+        selected_workspace = st.sidebar.selectbox("Select a workspace", options=["Car", "Logo", "Banner"])
 
-
-        selected_workspace = st.sidebar.selectbox("Select a workspace", options=["Banner", "Logo",'Car'])
-
-       
         
         if st.button("Clear history"):
-     
                 st.cache_data.clear()
                 st.session_state.chats.clear() 
                 st.rerun()
