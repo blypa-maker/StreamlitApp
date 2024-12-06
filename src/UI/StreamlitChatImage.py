@@ -8,14 +8,14 @@ import io
 
 class ImageWorkflow : 
 
-    def __init__(self, image_path:str, image_prompt:str, slogan, logo) -> None:
+    def __init__(self, image_path:str, image_prompt:str, slogan, logo=None) -> None:
          
         self.image_path = image_path
         self.image_prompt = image_prompt
         self.slogan = slogan
         self.logo = logo
         self.InPaintTab = InPaintTab(image_path, self.image_prompt)
-        self.AppTextTab = ApplyText(self.image_path, self.slogan, self.logo)
+        self.AppTextTab = ApplyText(self.image_path, self.slogan, logo)
          
 
     @st.dialog('Image Workflow', width='large')
@@ -66,11 +66,11 @@ class ImageWorkflow :
 
 class StreamlitChatImageCar() : 
 
-    def __init__(self, image_path:str,slogan, image_prompt:str = 'Transparent') -> None:
+    def __init__(self, image_path:str, slogan, image_prompt:str = 'Transparent') -> None:
         
         self.image_path = image_path 
         
-        self.workflowUI = ImageWorkflow(self.image_path, image_prompt,slogan,None)
+        self.workflowUI = ImageWorkflow(self.image_path, image_prompt, slogan, None)
         self.image_prompt = image_prompt
         self.slogan = slogan
  
@@ -107,15 +107,21 @@ class StreamlitChatImageCar() :
                      
                     self.workflowUI.render()
 
+    
+
+    def clear_history(self):
+        if 'messages' in st.session_state:
+            st.session_state.messages = []
+
 class StreamlitChatImage() : 
 
-    def __init__(self, image_path:str,slogan,logo, image_prompt:str = 'Transparent') -> None:
-        
+    # def __init__(self, image_path:str,slogan,logo, image_prompt:str = 'Transparent') -> None:
+    def __init__(self, image_path:str,slogan, image_prompt:str = 'Transparent') -> None:
+     
         self.image_path = image_path
-        self.workflowUI = ImageWorkflow(self.image_path, image_prompt,slogan,logo)
+        self.workflowUI = ImageWorkflow(self.image_path, image_prompt,slogan)
         self.image_prompt = image_prompt
         self.slogan = slogan
-        self.logo = logo
    
     def textsize(self, text, font):
         im = Image.new(mode="P", size=(0, 0))
@@ -124,51 +130,49 @@ class StreamlitChatImage() :
         return width, height
             
     def display(self,caption:str):
-
-        
         col1, col2 = st.columns([4, 1])   
         with col1:
 
             original_image = Image.open(self.image_path)
 
-            if self.logo: 
+            # # if self.logo: 
             
  
     
-                image = Image.open(self.logo)
-                image = image.resize((200,200))
+            #     image = Image.open(self.logo)
+            #     image = image.resize((200,200))
 
 
-                img_bytes = io.BytesIO()
-                image.save(img_bytes, format='PNG')
-                img_bytes = img_bytes.getvalue()
+            #     img_bytes = io.BytesIO()
+            #     image.save(img_bytes, format='PNG')
+            #     img_bytes = img_bytes.getvalue()
     
-                output = remove(img_bytes)
+            #     output = remove(img_bytes)
                 
-                img_without_bg = Image.open(io.BytesIO(output))
+            #     img_without_bg = Image.open(io.BytesIO(output))
     
-                original_width, original_height = original_image.size
+            #     original_width, original_height = original_image.size
     
-                img_without_bg_width, img_without_bg_height = img_without_bg.size
+            #     img_without_bg_width, img_without_bg_height = img_without_bg.size
 
             
-                position = (original_width - img_without_bg_width, original_height - img_without_bg_height)
+            #     position = (original_width - img_without_bg_width, original_height - img_without_bg_height)
 
                 
-                original_image.paste(img_without_bg, position, img_without_bg)
+            #     original_image.paste(img_without_bg, position, img_without_bg)
 
-                draw = ImageDraw.Draw(original_image)
-                file = open("ArialMT.ttf", "rb")
-                bytes_font = io.BytesIO(file.read())
+            #     draw = ImageDraw.Draw(original_image)
+            #     file = open("ArialMT.ttf", "rb")
+            #     bytes_font = io.BytesIO(file.read())
                  
-                font = ImageFont.truetype(bytes_font, 60) 
-                text =self.slogan
+            #     font = ImageFont.truetype(bytes_font, 60) 
+            #     text =self.slogan
                     
-                text_width, text_height =  self.textsize(text, font)
-                text_position = ((original_width - text_width) // 2, 10)  # 10 - відступ від верху
+            #     text_width, text_height =  self.textsize(text, font)
+            #     text_position = ((original_width - text_width) // 2, 10)  # 10 - відступ від верху
                     
                 
-                draw.text(text_position, text, font=font, fill=(255, 255, 255), )
+            #     draw.text(text_position, text, font=font, fill=(255, 255, 255), )
                  
             st.image(original_image,use_column_width = True,caption=caption )
             
@@ -191,4 +195,4 @@ class StreamlitChatImage() :
                 if st.button(" ", key=self.image_path):
                      
                     self.workflowUI.render()
-  
+

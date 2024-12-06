@@ -58,6 +58,7 @@ class StreamlitChatHistory(ChatHistory):
                     messeges_for_GPT.append({key: message[key] for key in ["role","content"]} )
 
         return messeges_for_GPT
+    
 
 class SimpleChatStream(ChatStream):
 
@@ -73,7 +74,7 @@ class CarBotComponentFactory():
         self.workflow = workflow
 
     def getChatBotComponent(self):
-        return CarBotComponent( self.workflow)
+        return CarBotComponent(self.workflow)
 
     
 class CarBotComponent:
@@ -91,7 +92,7 @@ class CarBotComponent:
     def render_history(self):
         print(f"Rendering history for chat_id: {self.chat_id}")
         messages = self.history.get_messages()
-         
+        
         if messages:
             for message in messages:
                 if message['chat_id'] == self.chat_id:
@@ -99,7 +100,6 @@ class CarBotComponent:
                     with st.chat_message(message['role']):
                         st.write(message['content'])
                         if message['image']:
-                             
                             self.display_images(message['image'], message['content'])
                 
                 
@@ -109,32 +109,36 @@ class CarBotComponent:
          
 
     def display_images(self, image_urls: list, text:str ): 
-         
         for i, img_url in enumerate(image_urls):
-
                 print("IMAGE HERE IS" , img_url)
-                image = StreamlitChatImageCar(img_url,slogan= '' ,image_prompt= text)
+                image = StreamlitChatImageCar(img_url, slogan='' , image_prompt=text)
                 image.display(f"Image {i+1}")
-                 
-       
 
+
+    def clear_session(self):
+        st.write("Clearing cache and chats...")
+        st.cache_data.clear()
+        st.session_state.chats.clear()
+        
 
     def chat_form(self):
         base_dir, templates_dir = self.setup_directories()
         selected_transport, primary_image, mask_image = self.load_selected_transport(templates_dir)
 
-        logo_file = st.file_uploader("Upload your logo", type=[ "png"])
+        logo_file = st.file_uploader("Upload your logo", type=["png"], on_change=self.clear_session)
         if logo_file:
             mask_image, overlay_image = self.process_logo(logo_file, primary_image, mask_image)
-            
-        wrap_style, services, slogan = self.get_user_inputs()
+
+        wrap_style, services, slogan = self.get_user_inputs()  
+
         self.render_history()
 
         prompt = st.chat_input("Say something")
+
         if prompt:
             image_id = str(uuid.uuid4())
-            save_path = f'inpaint_inputs/{ image_id}.png'
-            save_path_mask = f'inpaint_inputs/{ image_id}_{2}.png'
+            save_path = f'inpaint_inputs/{image_id}.png'
+            save_path_mask = f'inpaint_inputs/{image_id}_{2}.png'
             logo_url = f'logos/logo_{image_id}.png'
             with open(logo_url, mode='wb') as w:
                 w.write(logo_file.getvalue())
@@ -142,7 +146,7 @@ class CarBotComponent:
             Image.fromarray(overlay_image).save(save_path)
             Image.fromarray(mask_image).save(save_path_mask)
             
-            self.process_prompt(prompt, wrap_style, services,selected_transport,logo_url, save_path_mask, save_path)
+            self.process_prompt(prompt, wrap_style, services, selected_transport, logo_url, save_path_mask, save_path)
 
 
     def setup_directories(self):
@@ -157,7 +161,7 @@ class CarBotComponent:
             "Dodge RAM Pro Master": ("Van.png", "Van_mask.png")
         }
 
-        selected_transport = st.selectbox("Select type of transport", list(transport_options.keys()))
+        selected_transport = st.selectbox("Select type of transport", list(transport_options.keys()), on_change=self.clear_session)
         photo_file, mask_file = transport_options[selected_transport]
 
         photo_path = os.path.join(templates_dir, photo_file)
@@ -171,6 +175,12 @@ class CarBotComponent:
 
     def load_image(self, image_file):
         img = Image.open(image_file).convert("RGBA")
+        
+        max_size = 2000, 2000
+        
+        if img.size[0] > max_size[0] or img.size[1] > max_size[1]:
+            img.thumbnail(max_size, Image.Resampling.LANCZOS)
+        
         return np.array(img)
 
 
@@ -184,12 +194,12 @@ class CarBotComponent:
         overlay_image = self.overlay_logo_on_image(primary_image, resized_logo, x, y)
         updated_mask = self.update_mask(mask_image, resized_logo, x, y)
 
-        
         # Display updated images
         st.image(overlay_image, caption='Image with Logo', use_column_width=True)
         st.image(updated_mask, caption='Updated Mask', use_column_width=True)
 
         return updated_mask, overlay_image
+
 
     def resize_logo(self, logo_image, primary_image):
         logo_height, logo_width = logo_image.shape[:2]
@@ -237,25 +247,29 @@ class CarBotComponent:
     def get_user_inputs(self):
         wrap_style = st.selectbox("Wrap style:", ["Clean and minimal", "Patriotic", "Photograph-feature",
                                                 "Bright accent colors", "Edgy", "Nature graphics",
-                                                "Camo graphics", "Illustration-feature", "Fun/quirky"])
-        services = st.text_input("Provided services:")
-        slogan = st.text_input("Provided slogan:")
+                                                "Camo graphics", "Illustration-feature", "Fun/quirky"], on_change=self.clear_session)
+        services = st.text_input("Provided services:", on_change=self.clear_session)
+        slogan = st.text_input("Provided slogan:", on_change=self.clear_session)
         return wrap_style, services, slogan
+  
 
-
-    def process_prompt(self, prompt, wrap_style, services, car,logo_url, mask_image,overlay_image):
+    def process_prompt(self, prompt, wrap_style, services, car, logo_url, mask_image, overlay_image):
         with st.chat_message("user"):
             st.write(prompt)
 
         with st.chat_message("assistant"):
             history = self.history.build_history_for_GPT()
-            text = self.prompt_generator.Call_GPT_vision(car_name=car,wrap_style=wrap_style,services=services,logo=logo_url,add_info=prompt, history = history)
-
-            st.write_stream(self.chat_stream.stream_data(text))
-            with st.spinner("Generating images"):
+            text = self.prompt_generator.Call_GPT_vision(car_name=car, wrap_style=wrap_style, services=services, logo=logo_url, add_info=prompt, history=history)
+            
+            if "I'm sorry" in text or "I can't assist with that request" in text:
                 generated_image_path =[]
-                for i in range(4):
-                    generated_image_path.append(self.stable_diff.run_workflow(text, mask_image, overlay_image)[0])
-                self.display_images(generated_image_path, text)
+                st.write_stream(self.chat_stream.stream_data("An error occurred while generating the prompt. Please try again. If the error occurs again, please edit the input data."))
+            else:
+                st.write_stream(self.chat_stream.stream_data(text))
+                with st.spinner("Generating images"):
+                    generated_image_path =[]
+                    for i in range(4):
+                        generated_image_path.append(self.stable_diff.run_workflow(text, mask_image, overlay_image)[0])
+                    self.display_images(generated_image_path, text)
 
         self.save_content(prompt, text, generated_image_path)

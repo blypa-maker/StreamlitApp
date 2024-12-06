@@ -41,14 +41,12 @@ def render():
     
         
 
-def chat_form(workflow:WorkflowFactory ): 
-     
+def chat_form(workflow, inpaint_workflow, inpaint_cars_workflow):
          
     chat_factory = ChatBotComponentFactory(workflow)
-    cars_factory = CarBotComponentFactory(WorkflowFactoryInPaintCars())
-    sidebar = Sidebar(chat_factory,cars_factory)
-     
+    cars_factory = CarBotComponentFactory(inpaint_cars_workflow)
+
+    sidebar = Sidebar(chat_factory, cars_factory)
     sidebar.render()
-     
     
         

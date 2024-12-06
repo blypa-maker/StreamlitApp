@@ -57,7 +57,6 @@ class GPT_Generator:
                                 -Ensure the logo is presented on a white or transparent background.
                                 -Follow the style of prompts for Stable Diffusion 3, ensuring that the description is evocative and creative. In response, give only a prompt that briefly describes the logo-style design for Stable Diffusion 3. The response should be brief, meaningful, and without unnecessary information.
                                 """
-
                         }
             
         print(prompt)
@@ -80,8 +79,6 @@ class GPT_Vision:
     def Call_GPT_vision(self, car_name, wrap_style, services, logo, add_info, history, view="Driver"):
 
         print("Using GPT4 for prompt generation!")
-
-         
     
         prompt = f"""Design a high-quality car wrap design template for {view} of the {car_name} for a service provider {services}. 
               Please analyze the provided logo and extract the following design elements: * Color Palette: What are the dominant colors in the logo, including shades and hues? * 
@@ -95,7 +92,6 @@ class GPT_Vision:
                 return base64.b64encode(image_file.read()).decode('utf-8')
 
         API_KEY = os.environ['OPENAI_API_KEY']
-
 
         base64_image = encode_image(logo)
 
@@ -144,4 +140,3 @@ class GPT_Vision:
             response = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=payload)
 
         return response.json()['choices'][0]['message']['content']
-
