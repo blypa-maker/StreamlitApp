@@ -80,13 +80,23 @@ class GPT_Vision:
 
         print("Using GPT4 for prompt generation!")
     
-        prompt = f"""Design a high-quality car wrap design template for {view} of the {car_name} for a service provider {services}. 
-              Please analyze the provided logo and extract the following design elements: * Color Palette: What are the dominant colors in the logo, including shades and hues? * 
-              Background Composition: What is the logo background's texture, pattern, or solid color. Avoid any text and human or animals description? 
-              Consider the following wrap style: {wrap_style}. {'' if add_info else f"Take into account user prefferencess: {add_info}"}  Using the extracted design elements, generate a car wrap design template that incorporates the service provider's logo in a harmonious and visually appealing way. 
-              Please provide a detailed description of the design composition, including the use of color and background elements, to ensure a high-quality output.Avoid any markdown elements in the response. As output provide only prompt in the following pattern. 
-              Generate a car wrap design tample for {car_name}. [Descibe the backround elements taking into account provided logo and user prefferencess].[Describe the design style taking into account wrap style and color pallete]"""
-          
+        # prompt = f"""Design a high-quality car wrap design template for {view} of the {car_name} for a service provider {services}. 
+        #       Please analyze the provided logo and extract the following design elements: * Color Palette: What are the dominant colors in the logo, including shades and hues? * 
+        #       Background Composition: What is the logo background's texture, pattern, or solid color. Avoid any text and human or animals description? 
+        #       Consider the following wrap style: {wrap_style}. {'' if add_info else f"Take into account user prefferencess: {add_info}"}  Using the extracted design elements, generate a car wrap design template that incorporates the service provider's logo in a harmonious and visually appealing way. 
+        #       Please provide a detailed description of the design composition, including the use of color and background elements, to ensure a high-quality output.Avoid any markdown elements in the response. As output provide only prompt in the following pattern. 
+        #       Generate a car wrap design tample for {car_name}. [Descibe the backround elements taking into account provided logo and user prefferencess].[Describe the design style taking into account wrap style and color pallete]"""
+        prompt = f"""Design a high-quality car wrap design template for {view} side of the {car_name} for a service provider of {services}.
+Image provided is a customer logo, use it to extract color palette, background composition, etc.
+Consider the following wrap style: {wrap_style}.
+Additional user preferences: {'' if not add_info else add_info}.
+Using the extracted design elements, generate a car wrap design template that incorporates the service provider's logo in a harmonious and visually appealing way.
+Please provide a detailed description of the design composition, including the use of color and background elements, to ensure a high-quality output.
+Assume that the client logo is already placed on the car and you don't need to describe it.
+Try to avoid using any abstract phrases as generative model is worse at generating output with such prompt.
+Avoid any markdown elements in the response, return only prompt in the following one-paragraph pattern.
+Generate a car wrap design for {car_name}. [Descibe the background elements taking into account the provided logo and user preference. You can describe the design in details]
+        """
         def encode_image(image_path):
             with open(image_path, "rb") as image_file:
                 return base64.b64encode(image_file.read()).decode('utf-8')
@@ -104,6 +114,10 @@ class GPT_Vision:
             payload = {
             "model": "gpt-4o",
             "messages": [
+                {
+                    "role": "system",
+                    "content": "You are a professional designer and is proficient in using diffusion generative models. You have to create a design based on user input and provide a prompt for diffusion generative model to produce such design.\nYou have to design a car wrap based on user preferences."
+                },
                 {
                 "role": "user",
                 "content": [
@@ -126,11 +140,7 @@ class GPT_Vision:
             response = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=payload)
 
         else : 
-            history.insert(0, {"role": "system", "content": "You are an expert in Gen AI and Stable Diffusion."})
-            history.append({
-                'role' : 'user', 
-                'content' : prompt
-            })
+            history.insert(0, {"role": "system", "content": "You are a professional designer and is proficient in using diffusion generative models. You have to create a design based on user input and provide a prompt for diffusion generative model to produce such design.\nYou have to design a car wrap based on user preferences."})
             payload = {
             "model": "gpt-4o",
             "messages": history,
