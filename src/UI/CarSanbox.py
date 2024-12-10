@@ -258,18 +258,20 @@ class CarBotComponent:
             st.write(prompt)
 
         with st.chat_message("assistant"):
-            history = self.history.build_history_for_GPT()
-            text = self.prompt_generator.Call_GPT_vision(car_name=car, wrap_style=wrap_style, services=services, logo=logo_url, add_info=prompt, history=history)
+            for __ in range(5):
+                history = self.history.build_history_for_GPT()
+                text = self.prompt_generator.Call_GPT_vision(car_name=car, wrap_style=wrap_style, services=services, logo=logo_url, add_info=prompt, history=history)
             
-            if "I'm sorry" in text or "I can't assist with that request" in text:
-                generated_image_path =[]
-                st.write_stream(self.chat_stream.stream_data("An error occurred while generating the prompt. Please try again. If the error occurs again, please edit the input data."))
-            else:
-                st.write_stream(self.chat_stream.stream_data(text))
-                with st.spinner("Generating images"):
+                if "I'm sorry" in text or "I can't assist with that request" in text:
                     generated_image_path =[]
-                    for i in range(4):
-                        generated_image_path.append(self.stable_diff.run_workflow(text, mask_image, overlay_image)[0])
-                    self.display_images(generated_image_path, text)
+                    st.write_stream(self.chat_stream.stream_data("An error occurred while generating the prompt. Please try again. If the error occurs again, please edit the input data."))
+                else:
+                    st.write_stream(self.chat_stream.stream_data(text))
+                    with st.spinner("Generating images"):
+                        generated_image_path =[]
+                        for i in range(4):
+                            generated_image_path.append(self.stable_diff.run_workflow(text, mask_image, overlay_image)[0])
+                        self.display_images(generated_image_path, text)
+                    break
 
         self.save_content(prompt, text, generated_image_path)
