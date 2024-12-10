@@ -95,8 +95,7 @@ Please provide a detailed description of the design composition, including the u
 Assume that the client logo is already placed on the car and you don't need to describe it.
 Try to avoid using any abstract phrases as generative model is worse at generating output with such prompt.
 Avoid any markdown elements in the response, return only prompt in the following one-paragraph pattern.
-Generate a car wrap design for {car_name}. [Descibe the background elements taking into account the provided logo and user preference. You can describe the design in details]
-        """
+Generate a car wrap design for {car_name}. [Descibe the background elements taking into account the provided logo and user preference. You can describe the design in details]"""
         def encode_image(image_path):
             with open(image_path, "rb") as image_file:
                 return base64.b64encode(image_file.read()).decode('utf-8')
