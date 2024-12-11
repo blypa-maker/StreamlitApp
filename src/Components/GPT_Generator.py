@@ -142,7 +142,35 @@ Generate a car wrap design for {car_name}. [Descibe the background elements taki
             history.insert(0, {"role": "system", "content": "You are a professional designer and is proficient in using diffusion generative models. You have to create a design based on user input and provide a prompt for diffusion generative model to produce such design.\nYou have to design a car wrap based on user preferences."})
             payload = {
             "model": "gpt-4o",
-            "messages": history,
+            "messages": [
+                {
+                    "role": "system",
+                    "content": "You are a professional designer and is proficient in using diffusion generative models. You have to create a design based on user input and provide a prompt for diffusion generative model to produce such design.\nYou have to design a car wrap based on user preferences."
+                },
+                {
+                "role": "user",
+                "content": [
+                    {
+                    "type": "text",
+                    "text": prompt
+                    },
+                    {
+                    "type": "image_url",
+                    "image_url": {
+                        "url": f"data:image/jpeg;base64,{base64_image}"
+                    }
+                    }
+                ]
+                },
+                {
+                    "role": "assistant",
+                    "content": history[-1]['content']
+                },
+                {
+                    "role": "user",
+                    "content": add_info
+                }
+            ],
             "max_tokens": 1000
             }
 
